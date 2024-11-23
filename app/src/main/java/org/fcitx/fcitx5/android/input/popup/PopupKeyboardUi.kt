@@ -128,7 +128,7 @@ class PopupKeyboardUi(
      * `2.` parts of both offset transform it from `p` to `c`.
      */
     override val offsetX = ((triggerBounds.width() - keyWidth) / 2) - (keyWidth * focusColumn)
-    override val offsetY = (triggerBounds.height() - popupHeight) - (keyHeight * (rowCount - 1))
+    override val offsetY = -triggerBounds.height() - (keyHeight * rowCount)
 
     private val columnOrder = createColumnOrder(columnCount, focusColumn)
 

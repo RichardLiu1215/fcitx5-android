@@ -49,7 +49,7 @@ class PopupComponent :
         context.dp(38)
     }
     private val popupHeight by lazy {
-        context.dp(116)
+        context.dp(38)
     }
     private val popupKeyHeight by lazy {
         context.dp(48)
@@ -57,7 +57,7 @@ class PopupComponent :
     private val popupRadius by lazy {
         context.dp(ThemeManager.prefs.keyRadius.getValue()).toFloat()
     }
-    private val hideThreshold = 100L
+    private val hideThreshold = 0L
 
     private val rootLocation = intArrayOf(0, 0)
     private val rootBounds: Rect = Rect()
@@ -78,6 +78,8 @@ class PopupComponent :
         }
     }
 
+    var keyboardView: View? = null
+
     private fun showPopup(viewId: Int, content: String, bounds: Rect) {
         showingEntryUi[viewId]?.apply {
             dismissJobs[viewId]?.also {
@@ -95,7 +97,7 @@ class PopupComponent :
         root.apply {
             add(popup.root, lParams(popupWidth, popupHeight) {
                 // align popup bottom with key border bottom [^1]
-                topMargin = bounds.bottom - popupHeight - keyBottomMargin
+                topMargin = intArrayOf(0, popupHeight).also { keyboardView?.getLocationInWindow(it) }[1] - popupHeight
                 leftMargin = (bounds.left + bounds.right - popupWidth) / 2
             })
         }
@@ -109,7 +111,8 @@ class PopupComponent :
     private fun showKeyboard(viewId: Int, keyboard: KeyDef.Popup.Keyboard, bounds: Rect) {
         val keys = PopupPreset[keyboard.label] ?: return
         // clear popup preview text         OR create empty popup preview
-        showingEntryUi[viewId]?.setText("") ?: showPopup(viewId, "", bounds)
+        showingEntryUi[viewId]?.setText("")
+        dismissPopup(viewId)
         reallyShowKeyboard(viewId, keys, bounds)
     }
 
@@ -153,7 +156,7 @@ class PopupComponent :
         root.apply {
             add(ui.root, lParams {
                 leftMargin = ui.triggerBounds.left + ui.offsetX - rootBounds.left
-                topMargin = ui.triggerBounds.top + ui.offsetY - rootBounds.top
+                topMargin = maxOf(0, ui.triggerBounds.top + ui.offsetY - rootBounds.top)
             })
         }
         showingContainerUi[viewId] = ui
@@ -195,6 +198,8 @@ class PopupComponent :
         root.removeView(popup.root)
         freeEntryUi.add(popup)
     }
+
+    fun isPopupKeyboardUiShown(viewId: Int) = showingContainerUi[viewId] is PopupKeyboardUi
 
     fun dismissAll() {
         // avoid modifying collection while iterating

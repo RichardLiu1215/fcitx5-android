@@ -194,6 +194,7 @@ class IdleUi(
             animator.visibility = View.GONE
             numberRow.visibility = View.VISIBLE
             numberRow.keyActionListener = commonKeyActionListener.listener
+            numberRow.popup = popup
             numberRow.popupActionListener = popup.listener
         } else {
             menuButton.visibility = View.VISIBLE
@@ -201,6 +202,7 @@ class IdleUi(
             animator.visibility = View.VISIBLE
             numberRow.visibility = View.GONE
             numberRow.keyActionListener = null
+            numberRow.popup = null
             numberRow.popupActionListener = null
             popup.dismissAll()
         }

@@ -90,7 +90,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
 
     // This will be called EXACTLY ONCE
     override fun onCreateView(): View {
-        keyboardView = context.frameLayout(R.id.keyboard_view)
+        keyboardView = context.frameLayout(R.id.keyboard_view).also { popup.keyboardView = it }
         attachLayout(TextKeyboard.Name)
         return keyboardView
     }
@@ -100,6 +100,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
             it.onDetach()
             keyboardView.removeView(it)
             it.keyActionListener = null
+            it.popup = null
             it.popupActionListener = null
         }
     }
@@ -108,6 +109,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         currentKeyboardName = target
         currentKeyboard?.let {
             it.keyActionListener = keyActionListener
+            it.popup = popup
             it.popupActionListener = popupActionListener
             keyboardView.apply { add(it, lParams(matchParent, matchParent)) }
             it.onAttach()
@@ -162,6 +164,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     override fun onAttached() {
         currentKeyboard?.let {
             it.keyActionListener = keyActionListener
+            it.popup = popup
             it.popupActionListener = popupActionListener
             it.onAttach()
         }
@@ -172,6 +175,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         currentKeyboard?.let {
             it.onDetach()
             it.keyActionListener = null
+            it.popup = null
             it.popupActionListener = null
         }
         popup.dismissAll()

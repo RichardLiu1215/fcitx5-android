@@ -8,6 +8,7 @@ import android.content.Context
 import android.graphics.Rect
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -25,6 +26,7 @@ import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.GestureType
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.OnGestureListener
 import org.fcitx.fcitx5.android.input.popup.PopupAction
 import org.fcitx.fcitx5.android.input.popup.PopupActionListener
+import org.fcitx.fcitx5.android.input.popup.PopupComponent
 import splitties.dimensions.dp
 import splitties.views.dsl.constraintlayout.above
 import splitties.views.dsl.constraintlayout.below
@@ -67,6 +69,7 @@ abstract class BaseKeyboard(
 
     private val vivoKeypressWorkaround by prefs.advanced.vivoKeypressWorkaround
 
+    var popup: PopupComponent? = null
     var popupActionListener: PopupActionListener? = null
 
     private val selectionSwipeThreshold = dp(10f)
@@ -78,10 +81,8 @@ abstract class BaseKeyboard(
     private val bounds = Rect()
     private val keyRows: List<ConstraintLayout>
 
-    /**
-     * HashMap of [PointerId (Int)][MotionEvent.getPointerId] to [KeyView]
-     */
-    private val touchTarget = hashMapOf<Int, View>()
+
+    private var touchKey: KeyView? = null
 
     init {
         isMotionEventSplittingEnabled = true
@@ -304,11 +305,11 @@ abstract class BaseKeyboard(
                                         PopupAction.PreviewAction(view.id, it.content, view.bounds)
                                     )
                                     GestureType.Move -> {
-                                        val triggered = swipeSymbolDirection.checkY(event.totalY)
-                                        val text = if (triggered) it.alternative else it.content
-                                        onPopupAction(
-                                            PopupAction.PreviewUpdateAction(view.id, text)
-                                        )
+                                        // val triggered = swipeSymbolDirection.checkY(event.totalY)
+                                        // val text = if (triggered) it.alternative else it.content
+                                        // onPopupAction(
+                                        //    PopupAction.PreviewUpdateAction(view.id, text)
+                                        // )
                                     }
                                     GestureType.Up -> {
                                         onPopupAction(PopupAction.DismissAction(view.id))
@@ -381,72 +382,77 @@ abstract class BaseKeyboard(
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         // intercept ACTION_DOWN and all following events will go to parent's onTouchEvent
-        return if (vivoKeypressWorkaround && ev.actionMasked == MotionEvent.ACTION_DOWN) true
-        else super.onInterceptTouchEvent(ev)
+        // return if (vivoKeypressWorkaround && ev.actionMasked == MotionEvent.ACTION_DOWN) true
+        // else super.onInterceptTouchEvent(ev)
+        return true
+    }
+
+    private fun dispatchKeyTouchEvent(keyView: KeyView, event: MotionEvent, action: Int? = null): Boolean {
+        val transformedEvent = MotionEvent.obtain(event)
+        if (action != null) {
+            event.action = action
+        }
+        val rowView = keyView.parent as ViewGroup
+        event.offsetLocation(-(rowView.left + keyView.left).toFloat(), -(rowView.top + keyView.top).toFloat())
+        val result = keyView.dispatchTouchEvent(event)
+        transformedEvent.recycle()
+        return result
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (vivoKeypressWorkaround) {
-            when (event.actionMasked) {
-                MotionEvent.ACTION_DOWN -> {
-                    val target = findTargetChild(event.x, event.y) ?: return false
-                    touchTarget[event.getPointerId(0)] = target
-                    target.dispatchTouchEvent(
-                        transformMotionEventToChild(target, event, MotionEvent.ACTION_DOWN, 0)
-                    )
-                    return true
-                }
-                MotionEvent.ACTION_POINTER_DOWN -> {
-                    val i = event.actionIndex
-                    val target = findTargetChild(event.getX(i), event.getY(i)) ?: return false
-                    touchTarget[event.getPointerId(i)] = target
-                    target.dispatchTouchEvent(
-                        transformMotionEventToChild(target, event, MotionEvent.ACTION_DOWN, i)
-                    )
-                    return true
-                }
-                MotionEvent.ACTION_MOVE -> {
-                    for (i in 0 until event.pointerCount) {
-                        val target = touchTarget[event.getPointerId(i)] ?: continue
-                        target.dispatchTouchEvent(
-                            transformMotionEventToChild(target, event, MotionEvent.ACTION_MOVE, i)
-                        )
-                    }
-                    return true
-                }
-                MotionEvent.ACTION_UP -> {
-                    val i = event.actionIndex
-                    val pid = event.getPointerId(i)
-                    val target = touchTarget[event.getPointerId(i)] ?: return false
-                    target.dispatchTouchEvent(
-                        transformMotionEventToChild(target, event, MotionEvent.ACTION_UP, i)
-                    )
-                    touchTarget.remove(pid)
-                    return true
-                }
-                MotionEvent.ACTION_POINTER_UP -> {
-                    val i = event.actionIndex
-                    val pid = event.getPointerId(i)
-                    val target = touchTarget[event.getPointerId(i)] ?: return false
-                    target.dispatchTouchEvent(
-                        transformMotionEventToChild(target, event, MotionEvent.ACTION_UP, i)
-                    )
-                    touchTarget.remove(pid)
-                    return true
-                }
-                MotionEvent.ACTION_CANCEL -> {
-                    val i = event.actionIndex
-                    val pid = event.getPointerId(i)
-                    val target = touchTarget[pid] ?: return false
-                    target.dispatchTouchEvent(
-                        transformMotionEventToChild(target, event, MotionEvent.ACTION_CANCEL, i)
-                    )
-                    touchTarget.remove(pid)
-                    return true
-                }
+        val action = event.actionMasked
+        val x = event.x
+        val y = event.y
+        val currentKey = touchKey
+
+        if (action == MotionEvent.ACTION_CANCEL) {
+            touchKey = null
+            if (currentKey != null) dispatchKeyTouchEvent(currentKey, event)
+            super.onTouchEvent(event)
+            return true
+        }
+
+        if (currentKey != null) {
+            val row = currentKey.parent as ViewGroup
+            if (popup?.isPopupKeyboardUiShown(currentKey.id) == true
+                || (x >= row.left + currentKey.left
+                && x < row.left + currentKey.right
+                && y >= row.top + currentKey.top
+                && y < row.top + currentKey.bottom)) {
+                dispatchKeyTouchEvent(currentKey, event)
+                super.onTouchEvent(event)
+                return true
+            } else {
+                touchKey = null
+                dispatchKeyTouchEvent(currentKey, event, MotionEvent.ACTION_CANCEL)
             }
         }
-        return super.onTouchEvent(event)
+
+        val newKey = keyRows.find {
+            it.top <= y && it.bottom > y
+        }?.run {
+            var key: KeyView? = null
+            for (i in 0 until childCount) {
+                val child = getChildAt(i)
+                if (child is KeyView
+                    && (left + child.left) <= x
+                    && (left + child.right) > x
+                    && (top + child.top) <= y
+                    && (top + child.bottom) > y) {
+                    key = child
+                    break
+                }
+            }
+            key
+        }
+
+        if (newKey != null) {
+            touchKey = newKey
+            dispatchKeyTouchEvent(newKey, event, MotionEvent.ACTION_DOWN)
+        }
+
+        super.onTouchEvent(event)
+        return true
     }
 
     @CallSuper
