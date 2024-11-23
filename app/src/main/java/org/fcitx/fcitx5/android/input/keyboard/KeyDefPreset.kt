@@ -45,10 +45,15 @@ class AlphabetKey(
     variant: Variant = Variant.Normal,
     popup: Array<Popup>? = null
 ) : KeyDef(
-    Appearance.AltText(
+//    Appearance.AltText(
+//        displayText = character,
+//        altText = punctuation,
+//        textSize = 23f,
+//        variant = variant
+//    ),
+    Appearance.Text(
         displayText = character,
-        altText = punctuation,
-        textSize = 23f,
+        textSize = 16f,
         variant = variant
     ),
     setOf(
@@ -158,12 +163,18 @@ class CommaKey(
     percentWidth: Float,
     variant: Variant,
 ) : KeyDef(
-    Appearance.ImageText(
+//    Appearance.ImageText(
+//        displayText = ",",
+//        textSize = 23f,
+//        percentWidth = percentWidth,
+//        variant = variant,
+//        src = R.drawable.ic_baseline_tag_faces_24
+//    ),
+    Appearance.Text(
         displayText = ",",
         textSize = 23f,
         percentWidth = percentWidth,
         variant = variant,
-        src = R.drawable.ic_baseline_tag_faces_24
     ),
     setOf(
         Behavior.Press(KeyAction.FcitxKeyAction(","))
