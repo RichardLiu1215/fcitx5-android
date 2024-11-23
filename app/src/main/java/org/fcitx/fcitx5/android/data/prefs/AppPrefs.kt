@@ -146,7 +146,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val longPressDelay = int(
             R.string.keyboard_long_press_delay,
             "keyboard_long_press_delay",
-            300,
+            1500,
             100,
             700,
             "ms",
