@@ -113,9 +113,9 @@ class CommonKeyActionListener :
                         LangSwitchBehavior.Enumerate -> {
                             service.postFcitxJob {
                                 if (enabledIme().size < 2) {
-                                    service.lifecycleScope.launch {
-                                        service.showDialog(AddMoreInputMethodsPrompt.build(context))
-                                    }
+//                                    service.lifecycleScope.launch {
+//                                        service.showDialog(AddMoreInputMethodsPrompt.build(context))
+//                                    }
                                 } else {
                                     enumerateIme()
                                 }
