@@ -211,7 +211,7 @@ class LanguageKey : KeyDef(
     ),
     setOf(
         Behavior.Press(KeyAction.LangSwitchAction),
-        Behavior.LongPress(KeyAction.ShowInputMethodPickerAction)
+        // Behavior.LongPress(KeyAction.ShowInputMethodPickerAction)
     )
 )
 
