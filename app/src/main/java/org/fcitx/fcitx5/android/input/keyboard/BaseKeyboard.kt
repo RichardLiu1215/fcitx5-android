@@ -163,44 +163,44 @@ abstract class BaseKeyboard(
                 swipeRepeatEnabled = true
                 swipeThresholdX = selectionSwipeThreshold
                 swipeThresholdY = disabledSwipeThreshold
-                onGestureListener = OnGestureListener { _, event ->
-                    when (event.type) {
-                        GestureType.Move -> when (val count = event.countX) {
-                            0 -> false
-                            else -> {
-                                val sym =
-                                    if (count > 0) FcitxKeyMapping.FcitxKey_Right else FcitxKeyMapping.FcitxKey_Left
-                                val action = KeyAction.SymAction(KeySym(sym), KeyStates.Empty)
-                                repeat(count.absoluteValue) {
-                                    onAction(action)
-                                }
-                                true
-                            }
-                        }
-                        else -> false
-                    }
-                }
+//                onGestureListener = OnGestureListener { _, event ->
+//                    when (event.type) {
+//                        GestureType.Move -> when (val count = event.countX) {
+//                            0 -> false
+//                            else -> {
+//                                val sym =
+//                                    if (count > 0) FcitxKeyMapping.FcitxKey_Right else FcitxKeyMapping.FcitxKey_Left
+//                                val action = KeyAction.SymAction(KeySym(sym), KeyStates.Empty)
+//                                repeat(count.absoluteValue) {
+//                                    onAction(action)
+//                                }
+//                                true
+//                            }
+//                        }
+//                        else -> false
+//                    }
+//                }
             } else if (def is BackspaceKey) {
                 swipeEnabled = true
                 swipeRepeatEnabled = true
                 swipeThresholdX = selectionSwipeThreshold
                 swipeThresholdY = disabledSwipeThreshold
-                onGestureListener = OnGestureListener { _, event ->
-                    when (event.type) {
-                        GestureType.Move -> {
-                            val count = event.countX
-                            if (count != 0) {
-                                onAction(KeyAction.MoveSelectionAction(count))
-                                true
-                            } else false
-                        }
-                        GestureType.Up -> {
-                            onAction(KeyAction.DeleteSelectionAction(event.totalX))
-                            false
-                        }
-                        else -> false
-                    }
-                }
+//                onGestureListener = OnGestureListener { _, event ->
+//                    when (event.type) {
+//                        GestureType.Move -> {
+//                            val count = event.countX
+//                            if (count != 0) {
+//                                onAction(KeyAction.MoveSelectionAction(count))
+//                                true
+//                            } else false
+//                        }
+//                        GestureType.Up -> {
+//                            onAction(KeyAction.DeleteSelectionAction(event.totalX))
+//                            false
+//                        }
+//                        else -> false
+//                    }
+//                }
             }
             def.behaviors.forEach {
                 when (it) {
@@ -225,20 +225,20 @@ abstract class BaseKeyboard(
                         swipeEnabled = true
                         swipeThresholdX = disabledSwipeThreshold
                         swipeThresholdY = inputSwipeThreshold
-                        val oldOnGestureListener = onGestureListener ?: OnGestureListener.Empty
-                        onGestureListener = OnGestureListener { view, event ->
-                            when (event.type) {
-                                GestureType.Up -> {
-                                    if (!event.consumed && swipeSymbolDirection.checkY(event.totalY)) {
-                                        onAction(it.action)
-                                        true
-                                    } else {
-                                        false
-                                    }
-                                }
-                                else -> false
-                            } || oldOnGestureListener.onGesture(view, event)
-                        }
+//                        val oldOnGestureListener = onGestureListener ?: OnGestureListener.Empty
+//                        onGestureListener = OnGestureListener { view, event ->
+//                            when (event.type) {
+//                                GestureType.Up -> {
+//                                    if (!event.consumed && swipeSymbolDirection.checkY(event.totalY)) {
+//                                        onAction(it.action)
+//                                        true
+//                                    } else {
+//                                        false
+//                                    }
+//                                }
+//                                else -> false
+//                            } || oldOnGestureListener.onGesture(view, event)
+//                        }
                     }
                     is KeyDef.Behavior.DoubleTap -> {
                         doubleTapEnabled = true
