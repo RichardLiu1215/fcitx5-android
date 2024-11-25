@@ -203,7 +203,7 @@ class PopupKeyboardUi(
         var newColumn = floor(x / keyWidth).toInt()
         // retain focus when gesture moves between ±2 rows/columns of range
         if (newRow < -2 || newRow > rowCount + 1 || newColumn < -2 || newColumn > columnCount + 1) {
-            onDismissSelf(this)
+            // onDismissSelf(this)
             return true
         }
         newRow = limitIndex(newRow, rowCount)
