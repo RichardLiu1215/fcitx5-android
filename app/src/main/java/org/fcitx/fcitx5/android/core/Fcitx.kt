@@ -22,6 +22,7 @@ import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.utils.ImmutableGraph
 import org.fcitx.fcitx5.android.utils.Locales
 import org.fcitx.fcitx5.android.utils.appContext
+import org.fcitx.fcitx5.android.utils.languageCountry
 import org.fcitx.fcitx5.android.utils.toast
 import timber.log.Timber
 import java.util.Locale
@@ -175,15 +176,15 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
 
     private val imeNameMap: Map<Any, Array<String>> = mapOf(
         Locale.US.language to arrayOf("keyboard-us"),
-        Locale.CHINA.toLanguageTag() to arrayOf("keyboard-us", "pinyin"),
-        Locale.TAIWAN.toLanguageTag() to arrayOf("keyboard-us", "chewing"),
+        Locale.CHINA.languageCountry to arrayOf("keyboard-us", "pinyin"),
+        Locale.TAIWAN.languageCountry to arrayOf("keyboard-us", "chewing"),
         Locale.JAPAN.language to arrayOf("keyboard-us", "anthy"),
         Locale.KOREA.language to arrayOf("keyboard-us", "hangul"),
         "vi" to arrayOf("keyboard-us", "unikey"),
     )
 
     override suspend fun setEnabledImeForLocale() = withFcitxContext {
-        val imeNames = imeNameMap[Locale.getDefault().language] ?: imeNameMap[Locale.getDefault().toLanguageTag()] ?: imeNameMap[Locale.US.language]!!
+        val imeNames = imeNameMap[Locale.getDefault().language] ?: imeNameMap[Locale.getDefault().languageCountry] ?: imeNameMap[Locale.US.language]!!
         val imes = availableIme()
             .filter { imeNames.contains(it.uniqueName) }
             .map { it.uniqueName }.toTypedArray()

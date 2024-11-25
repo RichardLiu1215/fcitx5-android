@@ -6,6 +6,7 @@ package org.fcitx.fcitx5.android.utils
 
 import android.content.res.Configuration
 import android.os.Build
+import java.util.Locale
 
 object Locales {
 
@@ -40,3 +41,6 @@ object Locales {
     }
 
 }
+
+val Locale.languageCountry
+    get() = "${this.language}-${this.country}"
