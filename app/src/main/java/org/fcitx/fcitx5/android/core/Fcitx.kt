@@ -24,6 +24,7 @@ import org.fcitx.fcitx5.android.utils.Locales
 import org.fcitx.fcitx5.android.utils.appContext
 import org.fcitx.fcitx5.android.utils.toast
 import timber.log.Timber
+import java.util.Locale
 
 /**
  * Do not use this class directly, accessing fcitx via daemon instead
@@ -171,6 +172,26 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
 
     override suspend fun setCandidatePagingMode(mode: Int) =
         withFcitxContext { setFcitxCandidatePagingMode(mode) }
+
+    private val imeNameMap: Map<Any, Array<String>> = mapOf(
+        Locale.US.language to arrayOf("keyboard-us"),
+        Locale.CHINA.toLanguageTag() to arrayOf("keyboard-us", "pinyin"),
+        Locale.TAIWAN.toLanguageTag() to arrayOf("keyboard-us", "chewing"),
+        Locale.JAPAN.language to arrayOf("keyboard-us", "anthy"),
+        Locale.KOREA.language to arrayOf("keyboard-us", "hangul"),
+        "vi" to arrayOf("keyboard-us", "unikey"),
+    )
+
+    override suspend fun setEnabledImeForLocale() = withFcitxContext {
+        val imeNames = imeNameMap[Locale.getDefault().language] ?: imeNameMap[Locale.getDefault().toLanguageTag()] ?: imeNameMap[Locale.US.language]!!
+        val imes = availableIme()
+            .filter { imeNames.contains(it.uniqueName) }
+            .map { it.uniqueName }.toTypedArray()
+        setEnabledIme(imes)
+        if (!imes.contains(currentIme().uniqueName)) {
+            activateIme(imes[0])
+        }
+    }
 
     init {
         if (lifecycle.currentState != FcitxLifecycle.State.STOPPED)

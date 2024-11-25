@@ -78,6 +78,7 @@ import splitties.bitflags.hasFlag
 import splitties.dimensions.dp
 import splitties.resources.styledColor
 import timber.log.Timber
+import java.util.Locale
 import kotlin.math.max
 
 class FcitxInputMethodService : LifecycleInputMethodService() {
@@ -132,6 +133,8 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     val imeHeight: Int
         get() = (candidatesView?.height ?: 0) + (inputView?.keyboardView?.height ?: 0)
+
+    private var imeLocale: Locale? = null
 
     private fun replaceInputView(theme: Theme): InputView {
         inputView?.also { ViewCompat.setOnApplyWindowInsetsListener(it, null) }
@@ -653,6 +656,10 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         Timber.d("onStartInput: initialSel=${selection.current}, restarting=$restarting")
         // wait until InputContext created/activated
         postFcitxJob {
+            if (!Locale.getDefault().equals(imeLocale)) {
+                setEnabledImeForLocale()
+                imeLocale = Locale.getDefault()
+            }
             if (restarting) {
                 // when input restarts in the same editor, focus out to clear previous state
                 focus(false)

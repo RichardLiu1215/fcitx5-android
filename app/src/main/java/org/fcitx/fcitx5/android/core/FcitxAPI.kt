@@ -104,4 +104,6 @@ interface FcitxAPI {
 
     suspend fun setCandidatePagingMode(mode: Int)
 
+    suspend fun setEnabledImeForLocale()
+
 }
