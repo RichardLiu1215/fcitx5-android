@@ -67,6 +67,7 @@ class IdleUi(
         }
 
     val menuButton = ToolButton(ctx, R.drawable.ic_baseline_expand_more_24, theme).apply {
+        visibility = View.GONE
         rotation = menuButtonRotation
     }
 
@@ -197,7 +198,7 @@ class IdleUi(
             numberRow.popup = popup
             numberRow.popupActionListener = popup.listener
         } else {
-            menuButton.visibility = View.VISIBLE
+            menuButton.visibility = View.GONE
             hideKeyboardButton.visibility = View.VISIBLE
             animator.visibility = View.VISIBLE
             numberRow.visibility = View.GONE
