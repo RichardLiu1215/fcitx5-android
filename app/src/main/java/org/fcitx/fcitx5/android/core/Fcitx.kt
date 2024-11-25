@@ -184,7 +184,7 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
     )
 
     override suspend fun setEnabledImeForLocale() = withFcitxContext {
-        val imeNames = imeNameMap[Locale.getDefault().language] ?: imeNameMap[Locale.getDefault().languageCountry] ?: imeNameMap[Locale.US.language]!!
+        val imeNames = imeNameMap[Locale.getDefault().languageCountry] ?: imeNameMap[Locale.getDefault().language] ?: imeNameMap[Locale.US.language]!!
         val imes = availableIme()
             .filter { imeNames.contains(it.uniqueName) }
             .map { it.uniqueName }.toTypedArray()
