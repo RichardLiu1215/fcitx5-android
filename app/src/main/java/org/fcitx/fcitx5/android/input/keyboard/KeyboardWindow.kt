@@ -90,7 +90,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
 
     // This will be called EXACTLY ONCE
     override fun onCreateView(): View {
-        keyboardView = context.frameLayout(R.id.keyboard_view).also { popup.keyboardView = it }
+        keyboardView = context.frameLayout(R.id.keyboard_view)
         attachLayout(TextKeyboard.Name)
         return keyboardView
     }

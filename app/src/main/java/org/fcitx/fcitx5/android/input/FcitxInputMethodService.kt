@@ -130,6 +130,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         WindowInsetsCompat.CONSUMED
     }
 
+    val imeHeight: Int
+        get() = (candidatesView?.height ?: 0) + (inputView?.keyboardView?.height ?: 0)
+
     private fun replaceInputView(theme: Theme): InputView {
         inputView?.also { ViewCompat.setOnApplyWindowInsetsListener(it, null) }
         val newInputView = InputView(this, fcitx, theme)

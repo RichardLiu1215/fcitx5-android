@@ -7,7 +7,6 @@ package org.fcitx.fcitx5.android.input.popup
 import android.content.Context
 import android.graphics.drawable.GradientDrawable
 import android.view.ViewOutlineProvider
-import android.widget.TextView
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.AutoScaleTextView
 import splitties.dimensions.dp
@@ -38,7 +37,7 @@ class PopupEntryUi(override val ctx: Context, theme: Theme, keyHeight: Int, radi
         }
         outlineProvider = ViewOutlineProvider.BACKGROUND
         elevation = dp(2f)
-        add(textView, lParams(matchParent, keyHeight) {
+        add(textView, lParams(matchParent, matchParent) {
             topOfParent()
             centerHorizontally()
         })

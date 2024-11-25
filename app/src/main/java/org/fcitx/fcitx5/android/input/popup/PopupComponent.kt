@@ -78,8 +78,6 @@ class PopupComponent :
         }
     }
 
-    var keyboardView: View? = null
-
     private fun showPopup(viewId: Int, content: String, bounds: Rect) {
         showingEntryUi[viewId]?.apply {
             dismissJobs[viewId]?.also {
@@ -97,7 +95,7 @@ class PopupComponent :
         root.apply {
             add(popup.root, lParams(popupWidth, popupHeight) {
                 // align popup bottom with key border bottom [^1]
-                topMargin = intArrayOf(0, popupHeight).also { keyboardView?.getLocationInWindow(it) }[1] - popupHeight
+                topMargin = maxOf(0, root.height - service.imeHeight - popupHeight - 6)
                 leftMargin = (bounds.left + bounds.right - popupWidth) / 2
             })
         }
