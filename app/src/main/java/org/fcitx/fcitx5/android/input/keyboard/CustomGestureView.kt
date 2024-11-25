@@ -137,6 +137,24 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
         // double tap state should be preserved on touch up
     }
 
+    private fun scheduleLongPress() {
+        if (longPressEnabled && !longPressTriggered) {
+            longPressJob?.cancel()
+            longPressJob = lifecycleScope.launch {
+                delay(longPressDelay.toLong())
+                if (longPressFeedbackEnabled) {
+                    InputFeedbacks.hapticFeedback(this@CustomGestureView, true)
+                }
+                longPressTriggered = performLongClick()
+            }
+        }
+    }
+
+    private fun unscheduleLongPress() {
+        longPressJob?.cancel()
+        longPressJob = null
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val x = event.x
@@ -149,16 +167,7 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
                 InputFeedbacks.hapticFeedback(this)
                 InputFeedbacks.soundEffect(soundEffect)
                 dispatchGestureEvent(GestureType.Down, x, y)
-                if (longPressEnabled) {
-                    longPressJob?.cancel()
-                    longPressJob = lifecycleScope.launch {
-                        delay(longPressDelay.toLong())
-                        if (longPressFeedbackEnabled) {
-                            InputFeedbacks.hapticFeedback(this@CustomGestureView, true)
-                        }
-                        longPressTriggered = performLongClick()
-                    }
-                }
+                scheduleLongPress()
                 if (repeatEnabled) {
                     repeatJob?.cancel()
                     repeatJob = lifecycleScope.launch {
@@ -210,10 +219,7 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
                 drawableHotspotChanged(x, y)
                 if (!touchMovedOutside && !pointInView(x, y)) {
                     touchMovedOutside = true
-                    if (longPressEnabled) {
-                        longPressJob?.cancel()
-                        longPressJob = null
-                    }
+                    unscheduleLongPress()
                     if (repeatEnabled) {
                         repeatJob?.cancel()
                         repeatJob = null
@@ -221,6 +227,8 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
                     if (repeatStarted || !swipeEnabled) {
                         isPressed = false
                     }
+                } else {
+                    scheduleLongPress()
                 }
                 if (!swipeEnabled || longPressTriggered || repeatStarted) return true
                 val countX = consumeSwipe(x, SwipeAxis.X)

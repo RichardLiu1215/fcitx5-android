@@ -412,6 +412,10 @@ abstract class BaseKeyboard(
             return true
         }
 
+        if (action == MotionEvent.ACTION_UP) {
+            touchKey = null
+        }
+
         if (currentKey != null) {
             val row = currentKey.parent as ViewGroup
             if (popup?.isPopupKeyboardUiShown(currentKey.id) == true
