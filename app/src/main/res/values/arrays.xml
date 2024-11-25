@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="ime_names">
+        <item>wbx:五笔</item>
+        <item>wbpy:五笔拼音</item>
+        <item>pinyin:拼音</item>
+        <item>shuangpin:双拼</item>
+        <item>chewing:新酷音</item>
+        <item>hangul:한글</item>
+    </string-array>
+</resources>

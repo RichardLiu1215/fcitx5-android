@@ -164,9 +164,19 @@ class TextKeyboard(
         updatePunctuationKeys()
     }
 
+    private val imeNames by lazy {
+        val map = mutableMapOf<String, String>()
+        resources.getStringArray(R.array.ime_names).forEach {
+            it.split(":").run {
+                map[this[0]] = this[1]
+            }
+        }
+        map
+    }
+
     override fun onInputMethodUpdate(ime: InputMethodEntry) {
         space.mainText.text = buildString {
-            append(ime.displayName)
+            append(imeNames[ime.uniqueName] ?: ime.displayName)
             ime.subMode.run { label.ifEmpty { name.ifEmpty { null } } }?.let { append(" ($it)") }
         }
         if (capsState != CapsState.None) {
