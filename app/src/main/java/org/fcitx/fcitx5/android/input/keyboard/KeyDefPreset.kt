@@ -181,25 +181,25 @@ class CommaKey(
     ),
     arrayOf(
         Popup.Preview(","),
-        Popup.Menu(
-            arrayOf(
-                Popup.Menu.Item(
-                    "Emoji",
-                    R.drawable.ic_baseline_tag_faces_24,
-                    KeyAction.PickerSwitchAction()
-                ),
-                Popup.Menu.Item(
-                    "QuickPhrase",
-                    R.drawable.ic_baseline_format_quote_24,
-                    KeyAction.QuickPhraseAction
-                ),
-                Popup.Menu.Item(
-                    "Unicode",
-                    R.drawable.ic_logo_unicode,
-                    KeyAction.UnicodeAction
-                )
-            )
-        )
+//        Popup.Menu(
+//            arrayOf(
+//                Popup.Menu.Item(
+//                    "Emoji",
+//                    R.drawable.ic_baseline_tag_faces_24,
+//                    KeyAction.PickerSwitchAction()
+//                ),
+//                Popup.Menu.Item(
+//                    "QuickPhrase",
+//                    R.drawable.ic_baseline_format_quote_24,
+//                    KeyAction.QuickPhraseAction
+//                ),
+//                Popup.Menu.Item(
+//                    "Unicode",
+//                    R.drawable.ic_logo_unicode,
+//                    KeyAction.UnicodeAction
+//                )
+//            )
+//        )
     )
 )
 
