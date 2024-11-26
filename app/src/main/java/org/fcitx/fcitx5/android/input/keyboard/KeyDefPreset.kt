@@ -120,7 +120,7 @@ class LayoutSwitchKey(
 ) : KeyDef(
     Appearance.Text(
         displayText,
-        textSize = 16f,
+        textSize = 12f,
         textStyle = Typeface.BOLD,
         percentWidth = percentWidth,
         variant = variant

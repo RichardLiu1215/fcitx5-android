@@ -46,10 +46,10 @@ class PopupComponent :
         context.dp(ThemeManager.prefs.keyVerticalMargin.getValue())
     }
     private val popupWidth by lazy {
-        context.dp(38)
+        context.dp(50)
     }
     private val popupHeight by lazy {
-        context.dp(38)
+        context.dp(50)
     }
     private val popupKeyHeight by lazy {
         context.dp(48)
@@ -95,8 +95,8 @@ class PopupComponent :
         root.apply {
             add(popup.root, lParams(popupWidth, popupHeight) {
                 // align popup bottom with key border bottom [^1]
-                topMargin = maxOf(0, root.height - service.imeHeight - popupHeight - 6)
-                leftMargin = (bounds.left + bounds.right - popupWidth) / 2
+                topMargin = maxOf(root.height - service.imeHeight - popupHeight - 6, 0)
+                leftMargin = minOf( maxOf((bounds.left + bounds.right - popupWidth) / 2, 0), root.width - popupWidth)
             })
         }
         showingEntryUi[viewId] = popup
