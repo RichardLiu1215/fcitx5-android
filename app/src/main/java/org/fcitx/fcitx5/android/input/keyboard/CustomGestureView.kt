@@ -137,8 +137,11 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
         // double tap state should be preserved on touch up
     }
 
-    private fun scheduleLongPress() {
+    private fun scheduleLongPress(force: Boolean = true) {
         if (longPressEnabled && !longPressTriggered) {
+            if (force.not() && longPressJob != null) {
+                return
+            }
             longPressJob?.cancel()
             longPressJob = lifecycleScope.launch {
                 delay(longPressDelay.toLong())
@@ -227,9 +230,8 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
                     if (repeatStarted || !swipeEnabled) {
                         isPressed = false
                     }
-                } else {
-                    scheduleLongPress()
                 }
+                if (!touchMovedOutside) scheduleLongPress(false)
                 if (!swipeEnabled || longPressTriggered || repeatStarted) return true
                 val countX = consumeSwipe(x, SwipeAxis.X)
                 val countY = consumeSwipe(y, SwipeAxis.Y)
