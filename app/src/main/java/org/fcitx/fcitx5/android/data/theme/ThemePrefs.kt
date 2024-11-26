@@ -33,7 +33,7 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
         return pref
     }
 
-    val keyBorder = switch(R.string.key_border, "key_border", false)
+    val keyBorder = switch(R.string.key_border, "key_border", true)
 
     val keyRippleEffect = switch(R.string.key_ripple_effect, "key_ripple_effect", false)
 
@@ -45,10 +45,10 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
             R.string.key_horizontal_margin,
             R.string.portrait,
             "key_horizontal_margin",
-            3,
+            1,
             R.string.landscape,
             "key_horizontal_margin_landscape",
-            3,
+            1,
             0,
             24,
             "dp"
@@ -65,10 +65,10 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
             R.string.key_vertical_margin,
             R.string.portrait,
             "key_vertical_margin",
-            7,
+            1,
             R.string.landscape,
             "key_vertical_margin_landscape",
-            4,
+            1,
             0,
             24,
             "dp"

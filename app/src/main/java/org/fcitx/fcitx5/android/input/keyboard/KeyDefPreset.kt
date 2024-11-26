@@ -207,7 +207,8 @@ class LanguageKey : KeyDef(
     Appearance.Image(
         src = R.drawable.ic_baseline_language_24,
         variant = Variant.AltForeground,
-        viewId = R.id.button_lang
+        viewId = R.id.button_lang,
+        percentWidth = 0.15f,
     ),
     setOf(
         Behavior.Press(KeyAction.LangSwitchAction),
