@@ -192,6 +192,7 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
         if (!imes.contains(currentIme().uniqueName)) {
             activateIme(imes[0])
         }
+        println("xxxxxx ${availableIme().map { "(${it.name} -> ${it.uniqueName})" }}")
     }
 
     init {

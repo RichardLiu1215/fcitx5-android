@@ -7,17 +7,11 @@ package org.fcitx.fcitx5.android.input.keyboard
 import android.content.Context
 import android.graphics.Rect
 import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
-import org.fcitx.fcitx5.android.core.FcitxKeyMapping
 import org.fcitx.fcitx5.android.core.InputMethodEntry
-import org.fcitx.fcitx5.android.core.KeyStates
-import org.fcitx.fcitx5.android.core.KeySym
 import org.fcitx.fcitx5.android.data.InputFeedbacks
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
@@ -27,23 +21,19 @@ import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.OnGestureListen
 import org.fcitx.fcitx5.android.input.popup.PopupAction
 import org.fcitx.fcitx5.android.input.popup.PopupActionListener
 import org.fcitx.fcitx5.android.input.popup.PopupComponent
+import org.fcitx.fcitx5.android.utils.MeasureCache
 import splitties.dimensions.dp
-import splitties.views.dsl.constraintlayout.above
-import splitties.views.dsl.constraintlayout.below
 import splitties.views.dsl.constraintlayout.bottomOfParent
-import splitties.views.dsl.constraintlayout.centerHorizontally
-import splitties.views.dsl.constraintlayout.centerVertically
-import splitties.views.dsl.constraintlayout.constraintLayout
+import splitties.views.dsl.constraintlayout.bottomToBottomOf
+import splitties.views.dsl.constraintlayout.horizontalGuideline
 import splitties.views.dsl.constraintlayout.lParams
 import splitties.views.dsl.constraintlayout.leftOfParent
 import splitties.views.dsl.constraintlayout.leftToRightOf
 import splitties.views.dsl.constraintlayout.rightOfParent
 import splitties.views.dsl.constraintlayout.rightToLeftOf
 import splitties.views.dsl.constraintlayout.topOfParent
+import splitties.views.dsl.constraintlayout.topToTopOf
 import splitties.views.dsl.core.add
-import timber.log.Timber
-import kotlin.math.absoluteValue
-import kotlin.math.roundToInt
 
 abstract class BaseKeyboard(
     context: Context,
@@ -79,66 +69,75 @@ abstract class BaseKeyboard(
     private val disabledSwipeThreshold = dp(800f)
 
     private val bounds = Rect()
-    private val keyRows: List<ConstraintLayout>
+    private val keyRows: List<List<KeyView>>
 
 
     private var touchKey: KeyView? = null
 
+    private val measureCache = MeasureCache()
+
     init {
         isMotionEventSplittingEnabled = true
-        keyRows = keyLayout.map { row ->
-            val keyViews = row.map(::createKeyView)
-            constraintLayout Row@{
-                var totalWidth = 0f
-                keyViews.forEachIndexed { index, view ->
-                    add(view, lParams {
-                        centerVertically()
-                        if (index == 0) {
-                            leftOfParent()
-                            horizontalChainStyle = LayoutParams.CHAIN_PACKED
-                        } else {
-                            leftToRightOf(keyViews[index - 1])
-                        }
-                        if (index == keyViews.size - 1) {
-                            rightOfParent()
-                            // for RTL
-                            horizontalChainStyle = LayoutParams.CHAIN_PACKED
-                        } else {
-                            rightToLeftOf(keyViews[index + 1])
-                        }
-                        val def = row[index]
-                        matchConstraintPercentWidth = def.appearance.percentWidth
-                    })
-                    row[index].appearance.percentWidth.let {
-                        // 0f means fill remaining space, thus does not need expanding
-                        totalWidth += if (it != 0f) it else 1f
+
+        val guideLines = Array(keyLayout.size - 1) { index ->
+            horizontalGuideline(heightRatio = (index + 1) / keyLayout.size.toFloat())
+        }
+
+        keyRows = keyLayout.map { it.map(::createKeyView) }
+        keyRows.forEachIndexed { rowIndex, keys ->
+            val row = keyLayout[rowIndex]
+            var totalWidth = 0f
+            keys.forEachIndexed { keyIndex, key ->
+                add(key, lParams {
+                    if (keyIndex == 0) {
+                        leftOfParent()
+                        horizontalChainStyle = LayoutParams.CHAIN_PACKED
+                    } else {
+                        leftToRightOf(keys[keyIndex - 1])
                     }
-                }
-                if (expandKeypressArea && totalWidth < 1f) {
-                    val free = (1f - totalWidth) / 2f
-                    keyViews.first().apply {
-                        updateLayoutParams<LayoutParams> {
-                            matchConstraintPercentWidth += free
-                        }
-                        layoutMarginLeft = free / (row.first().appearance.percentWidth + free)
+                    if (keyIndex == keys.size - 1) {
+                        rightOfParent()
+                        // for RTL
+                        horizontalChainStyle = LayoutParams.CHAIN_PACKED
+                    } else {
+                        rightToLeftOf(keys[keyIndex + 1])
                     }
-                    keyViews.last().apply {
-                        updateLayoutParams<LayoutParams> {
-                            matchConstraintPercentWidth += free
-                        }
-                        layoutMarginRight = free / (row.last().appearance.percentWidth + free)
+
+                    val def = row[keyIndex]
+                    matchConstraintPercentWidth = def.appearance.percentWidth
+
+                    if (rowIndex == 0) {
+                        topOfParent()
+                    } else {
+                        topToTopOf(guideLines[rowIndex - 1])
                     }
+                    if (rowIndex == keyRows.lastIndex) {
+                        bottomOfParent()
+                    } else {
+                        bottomToBottomOf(guideLines[rowIndex])
+                    }
+                })
+
+                row[keyIndex].appearance.percentWidth.let {
+                    // 0f means fill remaining space, thus does not need expanding
+                    totalWidth += if (it != 0f) it else 1f
                 }
             }
-        }
-        keyRows.forEachIndexed { index, row ->
-            add(row, lParams {
-                if (index == 0) topOfParent()
-                else below(keyRows[index - 1])
-                if (index == keyRows.size - 1) bottomOfParent()
-                else above(keyRows[index + 1])
-                centerHorizontally()
-            })
+            if (expandKeypressArea && totalWidth < 1f) {
+                val free = (1f - totalWidth) / 2f
+                keys.first().apply {
+                    updateLayoutParams<LayoutParams> {
+                        matchConstraintPercentWidth += free
+                    }
+                    layoutMarginLeft = free / (row.first().appearance.percentWidth + free)
+                }
+                keys.last().apply {
+                    updateLayoutParams<LayoutParams> {
+                        matchConstraintPercentWidth += free
+                    }
+                    layoutMarginRight = free / (row.last().appearance.percentWidth + free)
+                }
+            }
         }
         spaceSwipeMoveCursor.registerOnChangeListener(spaceSwipeChangeListener)
     }
@@ -344,40 +343,24 @@ abstract class BaseKeyboard(
         }
     }
 
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        if (measureCache.setMeasureSpecs(widthMeasureSpec, heightMeasureSpec)) {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+            measureCache.width = measuredWidth
+            measureCache.height = measuredHeight
+        } else {
+            setMeasuredDimension(measureCache.width, measureCache.height)
+        }
+     }
+
+    override fun requestLayout() {
+        measureCache?.clear()
+        super.requestLayout()
+    }
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         val (x, y) = intArrayOf(0, 0).also { getLocationInWindow(it) }
         bounds.set(x, y, x + width, y + height)
-    }
-
-    private fun findTargetChild(x: Float, y: Float): View? {
-        val y0 = y.roundToInt()
-        // assume all rows have equal height
-        val row = keyRows.getOrNull(y0 * keyRows.size / bounds.height()) ?: return null
-        val x1 = x.roundToInt() + bounds.left
-        val y1 = y0 + bounds.top
-        return row.children.find {
-            if (it !is KeyView) false else it.bounds.contains(x1, y1)
-        }
-    }
-
-    private fun transformMotionEventToChild(
-        child: View,
-        event: MotionEvent,
-        action: Int,
-        pointerIndex: Int
-    ): MotionEvent {
-        if (child !is KeyView) {
-            Timber.w("child view is not KeyView when transforming MotionEvent $event")
-            return event
-        }
-        val childX = event.getX(pointerIndex) + bounds.left - child.bounds.left
-        val childY = event.getY(pointerIndex) + bounds.top - child.bounds.top
-        return MotionEvent.obtain(
-            event.downTime, event.eventTime, action,
-            childX, childY, event.getPressure(pointerIndex), event.getSize(pointerIndex),
-            event.metaState, event.xPrecision, event.yPrecision,
-            event.deviceId, event.edgeFlags
-        )
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
@@ -392,8 +375,7 @@ abstract class BaseKeyboard(
         if (action != null) {
             event.action = action
         }
-        val rowView = keyView.parent as ViewGroup
-        event.offsetLocation(-(rowView.left + keyView.left).toFloat(), -(rowView.top + keyView.top).toFloat())
+        event.offsetLocation(-(keyView.left).toFloat(), -(keyView.top).toFloat())
         val result = keyView.dispatchTouchEvent(event)
         transformedEvent.recycle()
         return result
@@ -417,12 +399,11 @@ abstract class BaseKeyboard(
         }
 
         if (currentKey != null) {
-            val row = currentKey.parent as ViewGroup
             if (popup?.isPopupKeyboardUiShown(currentKey.id) == true
-                || (x >= row.left + currentKey.left
-                && x < row.left + currentKey.right
-                && y >= row.top + currentKey.top
-                && y < row.top + currentKey.bottom)) {
+                || (x >= currentKey.left
+                        && x < currentKey.right
+                        && y >= currentKey.top
+                        && y < currentKey.bottom)) {
                 dispatchKeyTouchEvent(currentKey, event)
                 super.onTouchEvent(event)
                 return true
@@ -433,21 +414,9 @@ abstract class BaseKeyboard(
         }
 
         val newKey = keyRows.find {
-            it.top <= y && it.bottom > y
-        }?.run {
-            var key: KeyView? = null
-            for (i in 0 until childCount) {
-                val child = getChildAt(i)
-                if (child is KeyView
-                    && (left + child.left) <= x
-                    && (left + child.right) > x
-                    && (top + child.top) <= y
-                    && (top + child.bottom) > y) {
-                    key = child
-                    break
-                }
-            }
-            key
+            it[0].top <= y && it[0].bottom > y
+        }?.find {
+            it.left <= x && it.right > x && it.top <= y && it.bottom > y
         }
 
         if (newKey != null) {

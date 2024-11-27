@@ -15,8 +15,10 @@ import org.fcitx.fcitx5.android.daemon.FcitxConnection
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.data.theme.ThemePrefs
+import org.fcitx.fcitx5.android.utils.MeasureCache
 import org.fcitx.fcitx5.android.utils.navbarFrameHeight
 import kotlin.math.max
+import kotlin.time.measureTime
 
 abstract class BaseInputView(
     val service: FcitxInputMethodService,
@@ -25,6 +27,8 @@ abstract class BaseInputView(
 ) : ConstraintLayout(service) {
 
     protected abstract fun handleFcitxEvent(it: FcitxEvent<*>)
+
+    private val measureCache = MeasureCache()
 
     private var eventHandlerJob: Job? = null
 
@@ -76,5 +80,20 @@ abstract class BaseInputView(
     override fun onDetachedFromWindow() {
         handleEvents = false
         super.onDetachedFromWindow()
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        if (measureCache.setMeasureSpecs(widthMeasureSpec, heightMeasureSpec)) {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+            measureCache.width = measuredWidth
+            measureCache.height = measuredHeight
+        } else {
+            setMeasuredDimension(measureCache.width, measureCache.height)
+        }
+    }
+
+    override fun requestLayout() {
+        measureCache?.clear()
+        super.requestLayout()
     }
 }
