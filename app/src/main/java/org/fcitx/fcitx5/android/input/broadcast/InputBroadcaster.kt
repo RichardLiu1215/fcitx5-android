@@ -12,8 +12,8 @@ import org.fcitx.fcitx5.android.core.FcitxEvent.InputPanelEvent
 import org.fcitx.fcitx5.android.core.FormattedText
 import org.fcitx.fcitx5.android.core.InputMethodEntry
 import org.fcitx.fcitx5.android.input.wm.InputWindow
+import org.fcitx.fcitx5.android.utils.FastScope
 import org.mechdancer.dependency.Dependent
-import org.mechdancer.dependency.DynamicScope
 import org.mechdancer.dependency.ScopeEvent
 import org.mechdancer.dependency.UniqueComponent
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -74,7 +74,7 @@ class InputBroadcaster : UniqueComponent<InputBroadcaster>(), Dependent, InputBr
         receivers.forEach { it.onWindowDetached(window) }
     }
 
-    override fun onScopeSetupFinished(scope: DynamicScope) {
+    override fun onScopeSetupFinished(scope: FastScope) {
         receivers.forEach { it.onScopeSetupFinished(scope) }
     }
 

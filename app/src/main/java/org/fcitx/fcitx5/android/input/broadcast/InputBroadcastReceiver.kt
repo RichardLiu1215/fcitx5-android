@@ -13,11 +13,11 @@ import org.fcitx.fcitx5.android.core.FcitxEvent.InputPanelEvent
 import org.fcitx.fcitx5.android.core.FormattedText
 import org.fcitx.fcitx5.android.core.InputMethodEntry
 import org.fcitx.fcitx5.android.input.wm.InputWindow
-import org.mechdancer.dependency.DynamicScope
+import org.fcitx.fcitx5.android.utils.FastScope
 
 interface InputBroadcastReceiver {
 
-    fun onScopeSetupFinished(scope: DynamicScope) {}
+    fun onScopeSetupFinished(scope: FastScope) {}
 
     fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags) {}
 

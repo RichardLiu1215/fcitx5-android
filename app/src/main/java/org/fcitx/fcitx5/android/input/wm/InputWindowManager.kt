@@ -15,10 +15,8 @@ import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
 import org.fcitx.fcitx5.android.input.broadcast.InputBroadcaster
 import org.fcitx.fcitx5.android.input.dependency.UniqueViewComponent
 import org.fcitx.fcitx5.android.input.dependency.context
-import org.mechdancer.dependency.DynamicScope
+import org.fcitx.fcitx5.android.utils.FastScope
 import org.mechdancer.dependency.manager.must
-import org.mechdancer.dependency.minusAssign
-import org.mechdancer.dependency.plusAssign
 import splitties.views.dsl.core.add
 import splitties.views.dsl.core.frameLayout
 import splitties.views.dsl.core.lParams
@@ -30,7 +28,7 @@ class InputWindowManager : UniqueViewComponent<InputWindowManager, FrameLayout>(
 
     private val context by manager.context()
     private val broadcaster: InputBroadcaster by manager.must()
-    private lateinit var scope: DynamicScope
+    private lateinit var scope: FastScope
 
     private val essentialWindows = mutableMapOf<EssentialWindow.Key, Pair<InputWindow, View?>>()
 
@@ -160,7 +158,7 @@ class InputWindowManager : UniqueViewComponent<InputWindowManager, FrameLayout>(
 
     override val view: FrameLayout by lazy { context.frameLayout(R.id.input_window) }
 
-    override fun onScopeSetupFinished(scope: DynamicScope) {
+    override fun onScopeSetupFinished(scope: FastScope) {
         this.scope = scope
     }
 

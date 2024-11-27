@@ -40,10 +40,9 @@ import org.fcitx.fcitx5.android.input.picker.symbolPicker
 import org.fcitx.fcitx5.android.input.popup.PopupComponent
 import org.fcitx.fcitx5.android.input.preedit.PreeditComponent
 import org.fcitx.fcitx5.android.input.wm.InputWindowManager
+import org.fcitx.fcitx5.android.utils.FastScope
 import org.fcitx.fcitx5.android.utils.unset
-import org.mechdancer.dependency.DynamicScope
 import org.mechdancer.dependency.manager.wrapToUniqueComponent
-import org.mechdancer.dependency.plusAssign
 import splitties.dimensions.dp
 import splitties.views.dsl.constraintlayout.above
 import splitties.views.dsl.constraintlayout.below
@@ -93,7 +92,7 @@ class InputView(
         setOnClickListener(placeholderOnClickListener)
     }
 
-    private val scope = DynamicScope()
+    private val scope = FastScope()
     private val themedContext = context.withTheme(R.style.Theme_InputViewTheme)
     private val broadcaster = InputBroadcaster()
     private val popup = PopupComponent()
