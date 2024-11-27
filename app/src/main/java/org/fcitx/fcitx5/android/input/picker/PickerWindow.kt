@@ -31,7 +31,6 @@ import org.mechdancer.dependency.manager.must
 
 class PickerWindow(
     override val key: Key,
-    private val data: List<Pair<PickerData.Category, Array<String>>>,
     private val density: PickerPageUi.Density,
     private val switchKey: KeyDef,
     private val popupPreview: Boolean = true,
@@ -42,6 +41,14 @@ class PickerWindow(
         Symbol,
         Emoji,
         Emoticon
+    }
+
+    private val data: List<Pair<PickerData.Category, Array<String>>> by lazy {
+        when (key) {
+            Key.Symbol -> PickerData.Symbol
+            Key.Emoji -> PickerData.Emoji
+            else -> PickerData.Emoticon
+        }
     }
 
     private val service by manager.inputMethodService()
