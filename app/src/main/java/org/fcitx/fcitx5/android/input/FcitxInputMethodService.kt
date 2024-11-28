@@ -136,9 +136,12 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     private var imeLocale: Locale? = null
 
+    private var prebuiltInputView: InputView? = null
+
     private fun replaceInputView(theme: Theme): InputView {
         inputView?.also { ViewCompat.setOnApplyWindowInsetsListener(it, null) }
-        val newInputView = InputView(this, fcitx, theme)
+        val newInputView = prebuiltInputView ?: InputView(this, fcitx, theme)
+        prebuiltInputView = null
         setInputView(newInputView)
         inputDeviceMgr.setInputView(newInputView)
         ViewCompat.setOnApplyWindowInsetsListener(newInputView, inputViewInsetsListener)
@@ -220,6 +223,8 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         super.onCreate()
         decorView = window.window!!.decorView
         contentView = decorView.findViewById(android.R.id.content)
+
+        prebuiltInputView = InputView(this, fcitx, ThemeManager.activeTheme)
     }
 
     private fun handleFcitxEvent(event: FcitxEvent<*>) {
