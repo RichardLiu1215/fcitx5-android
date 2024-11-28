@@ -185,11 +185,13 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
 
     override suspend fun setEnabledImeForLocale() = withFcitxContext {
         val imeNames = imeNameMap[Locale.getDefault().languageCountry] ?: imeNameMap[Locale.getDefault().language] ?: imeNameMap[Locale.US.language]!!
-        val imes = availableIme()
-            .filter { imeNames.contains(it.uniqueName) }
-            .map { it.uniqueName }.toTypedArray()
-        setEnabledIme(imes)
-        if (!imes.contains(currentIme().uniqueName)) {
+        val availableNames = availableIme().let { imes ->
+            imeNames.filter { name ->
+                imes.find { it.uniqueName == name } != null
+            }.toTypedArray()
+        }
+        setEnabledIme(availableNames)
+        if (!availableNames.contains(currentIme().uniqueName)) {
             activateIme("keyboard-us")
         }
     }
