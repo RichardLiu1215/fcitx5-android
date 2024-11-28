@@ -190,9 +190,8 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
             .map { it.uniqueName }.toTypedArray()
         setEnabledIme(imes)
         if (!imes.contains(currentIme().uniqueName)) {
-            activateIme(imes[0])
+            activateIme("keyboard-us")
         }
-        println("xxxxxx ${availableIme().map { "(${it.name} -> ${it.uniqueName})" }}")
     }
 
     init {
