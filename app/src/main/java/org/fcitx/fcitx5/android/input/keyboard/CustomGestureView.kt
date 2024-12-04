@@ -59,7 +59,7 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
     private var longPressJob: Job? = null
 
     @Volatile
-    var longPressFeedbackEnabled = true
+    var longPressFeedbackEnabled = false
 
     @Volatile
     private var repeatStarted = false
@@ -167,8 +167,8 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
                 if (!isEnabled) return false
                 drawableHotspotChanged(x, y)
                 isPressed = true
-                InputFeedbacks.hapticFeedback(this)
-                InputFeedbacks.soundEffect(soundEffect)
+//                InputFeedbacks.hapticFeedback(this)
+//                InputFeedbacks.soundEffect(soundEffect)
                 dispatchGestureEvent(GestureType.Down, x, y)
                 scheduleLongPress()
                 if (repeatEnabled) {
@@ -192,7 +192,7 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
             }
             MotionEvent.ACTION_UP -> {
                 isPressed = false
-                InputFeedbacks.hapticFeedback(this, longPress = true, keyUp = true)
+//                InputFeedbacks.hapticFeedback(this, longPress = true, keyUp = true)
                 dispatchGestureEvent(GestureType.Up, event.x, event.y)
                 val shouldPerformClick = !(touchMovedOutside ||
                         longPressTriggered ||

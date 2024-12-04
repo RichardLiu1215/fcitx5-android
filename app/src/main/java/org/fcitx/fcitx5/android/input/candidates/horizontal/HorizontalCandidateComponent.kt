@@ -213,7 +213,7 @@ class HorizontalCandidateComponent :
         service.lifecycleScope.launch {
             val actions = fcitx.runOnReady { getCandidateActions(idx) }
             if (actions.isEmpty()) return@launch
-            InputFeedbacks.hapticFeedback(ui.root, longPress = true)
+//            InputFeedbacks.hapticFeedback(ui.root, longPress = true)
             candidateActionMenu = PopupMenu(context, ui.root).apply {
                 menu.add(buildSpannedString {
                     bold {
