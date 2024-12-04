@@ -311,11 +311,15 @@ object DataManager {
         FileUtil.symlink(dataDir.resolve(source), dataDir.resolve(target))
 
     private fun AssetManager.copyFile(filename: String) {
-        open(filename).use { i ->
-            File(dataDir, filename)
-                .also { it.parentFile?.mkdirs() }
-                .outputStream()
-                .use { o -> i.copyTo(o) }
+        try {
+            open(filename).use { i ->
+                File(dataDir, filename)
+                    .also { it.parentFile?.mkdirs() }
+                    .outputStream()
+                    .use { o -> i.copyTo(o) }
+            }
+        } catch (e: Throwable) {
+            e.printStackTrace()
         }
     }
 

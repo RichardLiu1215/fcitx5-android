@@ -58,7 +58,10 @@ android {
     androidResources {
         @Suppress("UnstableApiUsage")
         generateLocaleConfig = true
+
+        ignoreAssetsPattern = "zh_CN.lm.predict:db.main.dict:wbpy.main.dict:wbx.main.dict:zrm.main.dict:charselectdata:py_stroke.mb"
     }
+
 }
 
 kotlin {
